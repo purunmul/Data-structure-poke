@@ -1,6 +1,6 @@
 # Poké — Data Structure PBL 프로젝트
 
-## 프로젝트 개요 -> 이건 쓰레기임
+## 프로젝트 개요
 - **과제명:** Dungeon Explorer: Guided Data Structures PBL
 - **게임명:** Poké (포켓몬 테마 텍스트 어드벤처)
 - **언어:** C++17
