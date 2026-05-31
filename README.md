@@ -1,4 +1,4 @@
-# Dungeon Explorer Student Starter
+# 포켓몬 게임
 
 This is the C++ starter project for the guided data structures PBL assignment.
 
