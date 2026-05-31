@@ -36,24 +36,44 @@ public:
     }
 
     void enqueue(const T& value) {
-        // TODO(Student): Implement queue enqueue.
-        // Hint: insert at rearNode. If the queue is empty, frontNode and rearNode
-        // should point to the same new node.
-        (void)value;
+        Node* newNode = new Node(value);
+
+        if (isEmpty()) {
+            frontNode = newNode;
+            rearNode = newNode;
+        } else {
+            rearNode->next = newNode;
+            rearNode = newNode;
+        }
+
+        ++count;
     }
 
     bool dequeue(T& output) {
-        // TODO(Student): Implement queue dequeue.
-        // Return false if empty. Otherwise remove from frontNode.
-        (void)output;
-        std::cout << "[TODO] Queue::dequeue is not implemented yet.\n";
-        return false;
+        if (isEmpty()) {
+            return false;
+        }
+
+        Node* oldFront = frontNode;
+        output = oldFront->value;
+        frontNode = frontNode->next;
+
+        if (frontNode == nullptr) {
+            rearNode = nullptr;
+        }
+
+        delete oldFront;
+        --count;
+        return true;
     }
 
     bool peek(T& output) const {
-        // TODO(Student): Implement queue peek.
-        (void)output;
-        return false;
+        if (isEmpty()) {
+            return false;
+        }
+
+        output = frontNode->value;
+        return true;
     }
 
     void clear() {

@@ -51,5 +51,5 @@ const Inventory& Player::getInventory() const {
 }
 
 void Player::printStatus() const {
-    std::cout << "Player: " << name << " | HP: " << health << " | Score: " << score << "\n";
+    std::cout << "플레이어: " << name << " | 체력: " << health << " | 점수: " << score << "\n";
 }

@@ -66,9 +66,9 @@ void Room::printDescription() const {
     std::cout << description << "\n";
 
     if (items.isEmpty()) {
-        std::cout << "Items: none\n";
+        std::cout << "아이템: 없음\n";
     } else {
-        std::cout << "Items:\n";
+        std::cout << "아이템:\n";
         for (int i = 0; i < items.size(); ++i) {
             std::cout << "  - ";
             items[i].print();
@@ -76,7 +76,7 @@ void Room::printDescription() const {
     }
 
     if (!monsters.isEmpty()) {
-        std::cout << "Monsters:\n";
+        std::cout << "몬스터:\n";
         for (int i = 0; i < monsters.size(); ++i) {
             std::cout << "  - ";
             monsters[i].print();
