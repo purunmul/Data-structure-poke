@@ -2,7 +2,7 @@
 #include <iostream>
 
 Player::Player(const std::string& name)
-    : name(name), health(100), score(0), currentRoomId(0), inventory() {}
+    : name(name), health(100), score(0), currentRoomId(0), inventory(), x(20), y(20) {}
 
 std::string Player::getName() const {
     return name;
@@ -22,6 +22,11 @@ int Player::getCurrentRoomId() const {
 
 void Player::setCurrentRoomId(int roomId) {
     currentRoomId = roomId;
+}
+
+void Player::setPosition(int newX, int newY) { // Gun Kim 추가 -dc
+    x = newX;
+    y = newY;
 }
 
 void Player::addScore(int amount) {

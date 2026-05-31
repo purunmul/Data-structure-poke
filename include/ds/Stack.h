@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-// Linked-node stack. Used for movement history and undo.
+// 연결 리스트 기반 스택: 이동 기록 및 Undo 기능에 사용 -dc (Gun Kim 구현)
 template <typename T>
 class Stack {
 private:
@@ -34,31 +34,37 @@ public:
         return count;
     }
 
+    // 새로운 데이터를 스택 최상단에 삽입
     void push(const T& value) {
-        // TODO(Student): Implement stack push.
-        // Hint: allocate a new Node, link it to the current top, then update topNode.
-        (void)value;
-        std::cout << "[미구현] Stack::push 함수가 아직 구현되지 않았습니다.\n";
+        Node* newNode = new Node(value);
+        newNode->next = topNode;
+        topNode = newNode;
+        count++;
     }
 
+    // 최상단 데이터를 꺼내고 메모리 해제 (성공 시 true)
     bool pop(T& output) {
-        // TODO(Student): Implement stack pop.
-        // Return false if the stack is empty. Otherwise copy the top value into output,
-        // unlink the top node, delete it, and return true.
-        (void)output;
-        std::cout << "[미구현] Stack::pop 함수가 아직 구현되지 않았습니다.\n";
-        return false;
+        if (isEmpty()) {
+            return false;
+        }
+        Node* temp = topNode;
+        output = topNode->value;
+        topNode = topNode->next;
+        delete temp;
+        count--;
+        return true;
     }
 
+    // 데이터를 꺼내지 않고 값만 확인
     bool peek(T& output) const {
-        // TODO(Student): Implement stack peek.
-        // Return false if empty. Otherwise copy the top value into output without removing it.
-        (void)output;
-        return false;
+        if (isEmpty()) {
+            return false;
+        }
+        output = topNode->value;
+        return true;
     }
 
     void clear() {
-        // Provided cleanup helper: delete every node and reset topNode/count.
         while (topNode != nullptr) {
             Node* old = topNode;
             topNode = topNode->next;

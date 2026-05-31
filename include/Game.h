@@ -26,6 +26,7 @@ private:
     void look() const;
     void move(Direction direction);
     void undoMove();
+    void displayMap() const; // Gun Kim 추가: 40x40 맵 출력 -dc
     void takeItem(const std::string& itemName);
     void processOneEvent();
     void showScores() const;

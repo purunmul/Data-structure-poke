@@ -1,10 +1,15 @@
 #include "Room.h"
 #include <iostream>
 
-Room::Room() : id(-1), name(""), description(""), items(), monsters(), visited(false) {}
+Room::Room()
+    : id(-1), name(""), description(""), visited(false),
+      width(40), height(40), encounterRate(0), eventTriggerStep(-1) {}
 
-Room::Room(int id, const std::string& name, const std::string& description)
-    : id(id), name(name), description(description), items(), monsters(), visited(false) {}
+// Gun Kim 설계 반영: encounterRate, eventStep 파라미터 추가 -dc
+Room::Room(int id, const std::string& name, const std::string& description,
+           int encounterRate, int eventStep)
+    : id(id), name(name), description(description), visited(false),
+      width(40), height(40), encounterRate(encounterRate), eventTriggerStep(eventStep) {}
 
 int Room::getId() const {
     return id;

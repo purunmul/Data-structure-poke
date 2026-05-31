@@ -16,4 +16,8 @@ std::string directionToString(Direction direction);
 Direction oppositeDirection(Direction direction);
 int directionToIndex(Direction direction);
 
+// Gun Kim 추가: 방향별 좌표 델타 -dc
+int getDeltaX(Direction direction);
+int getDeltaY(Direction direction);
+
 #endif

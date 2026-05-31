@@ -21,11 +21,17 @@ void Game::buildSampleWorld()
     int viridianCity = dungeon.addRoom("비리디안 시티", "큰 체육관이 버티고 있는 도시다. 트레이너의 기운이 느껴진다.");
     int safariZone   = dungeon.addRoom("사파리 존",     "희귀한 포켓몬이 사는 특별 보호구역이다.");
 
-    // 방 연결: 팔레트 타운 -[north]-> 1번 도로 -[north]-> 비리디안 시티
-    //                                              -[east]-> 사파리 존 -dc
-    dungeon.connectRooms(palletTown,   Direction::North, route1,       true);
-    dungeon.connectRooms(route1,       Direction::North, viridianCity, true);
-    dungeon.connectRooms(route1,       Direction::East,  safariZone,   true);
+    // 방 연결: Gate 방식 (40x40 좌표 기반) -dc (Gun Kim 구현)
+    // North 경계: y=40, South: y=0, East: x=40, West: x=0
+    // 팔레트 타운 <-> 1번 도로 (북/남)
+    dungeon.connectRoomsByGate(palletTown,   20, 40, route1,       20,  1);
+    dungeon.connectRoomsByGate(route1,       20,  0, palletTown,   20, 39);
+    // 1번 도로 <-> 비리디안 시티 (북/남)
+    dungeon.connectRoomsByGate(route1,       20, 40, viridianCity, 20,  1);
+    dungeon.connectRoomsByGate(viridianCity, 20,  0, route1,       20, 39);
+    // 1번 도로 <-> 사파리 존 (동/서)
+    dungeon.connectRoomsByGate(route1,       40, 20, safariZone,    1, 20);
+    dungeon.connectRoomsByGate(safariZone,    0, 20, route1,        39, 20);
 
     // 아이템 배치 -dc
     Room* pallet = dungeon.getRoom(palletTown);
@@ -33,6 +39,7 @@ void Game::buildSampleWorld()
     {
         pallet->addItem(createItem("몬스터볼"));
         pallet->addItem(createItem("풀회복약"));
+        pallet->addItem(createItem("라이플")); // 테스트용 -dc
     }
 
     Room* route = dungeon.getRoom(route1);
@@ -101,22 +108,20 @@ void Game::look() const
     }
 
     room->printDescription();
+    // Gate 방식으로 출구 탐색 -dc (Gun Kim 구현 반영)
     std::cout << "출구:";
     bool hasExit = false;
+    int nr, nx, ny;
     for (int i = 0; i < 4; ++i)
     {
-        Direction direction = static_cast<Direction>(i);
-        int neighbor = dungeon.getNeighbor(room->getId(), direction);
-        if (neighbor != -1)
+        Direction dir = static_cast<Direction>(i);
+        if (dungeon.findGateByDirection(room->getId(), dir, nr, nx, ny))
         {
-            std::cout << " " << directionToString(direction);
+            std::cout << " " << directionToString(dir);
             hasExit = true;
         }
     }
-    if (!hasExit)
-    {
-        std::cout << " 없음 또는 그래프 미구현";
-    }
+    if (!hasExit) std::cout << " 없음";
     std::cout << "\n";
 }
 
@@ -128,16 +133,18 @@ void Game::move(Direction direction)
         return;
     }
 
+    // Gate 방식으로 이동 처리 -dc (Gun Kim 구현 반영)
     int current = player.getCurrentRoomId();
-    int next = dungeon.getNeighbor(current, direction);
-    if (next == -1)
+    int nextRoom, nextX, nextY;
+    if (!dungeon.findGateByDirection(current, direction, nextRoom, nextX, nextY))
     {
         std::cout << "여기서는 " << directionToString(direction) << " 방향으로 이동할 수 없습니다.\n";
         return;
     }
 
     moveHistory.push(current);
-    player.setCurrentRoomId(next);
+    player.setCurrentRoomId(nextRoom);
+    player.setPosition(nextX, nextY);
     player.addScore(1);
     look();
 }
@@ -203,6 +210,46 @@ void Game::showScores() const
 {
     std::cout << "점수 기록:\n";
     scoreTree.printDescending();
+}
+
+// Gun Kim 구현: 40x40 방을 20x10으로 축소 출력, 플레이어 위치 P로 표시 -dc
+void Game::displayMap() const
+{
+    const Room* room = dungeon.getRoom(player.getCurrentRoomId());
+    if (room == nullptr) return;
+
+    const int COLS = 20;
+    const int ROWS = 10;
+    int px = player.getX() * COLS / 40;
+    int py = player.getY() * ROWS / 40;
+
+    int nr, nx, ny;
+    bool hasN = dungeon.findGateByDirection(player.getCurrentRoomId(), Direction::North, nr, nx, ny);
+    bool hasS = dungeon.findGateByDirection(player.getCurrentRoomId(), Direction::South, nr, nx, ny);
+    bool hasE = dungeon.findGateByDirection(player.getCurrentRoomId(), Direction::East,  nr, nx, ny);
+    bool hasW = dungeon.findGateByDirection(player.getCurrentRoomId(), Direction::West,  nr, nx, ny);
+
+    std::cout << "\n== 지도: " << room->getName() << " ==\n";
+    if (hasN) std::cout << "          [북]\n";
+
+    std::cout << (hasW ? "<" : "+");
+    for (int x = 0; x < COLS; ++x) std::cout << "-";
+    std::cout << (hasE ? ">\n" : "+\n");
+
+    for (int y = ROWS - 1; y >= 0; --y)
+    {
+        std::cout << "|";
+        for (int x = 0; x < COLS; ++x)
+            std::cout << (x == px && y == py ? "P" : " ");
+        std::cout << "|\n";
+    }
+
+    std::cout << (hasW ? "<" : "+");
+    for (int x = 0; x < COLS; ++x) std::cout << "-";
+    std::cout << (hasE ? ">\n" : "+\n");
+
+    if (hasS) std::cout << "          [남]\n";
+    std::cout << "위치: (" << player.getX() << ", " << player.getY() << ")\n";
 }
 
 void Game::showSortedRoomItems() const
@@ -287,7 +334,7 @@ void Game::processCommand(const std::string& line)
     }
     else if (command == "map" || command == "지도")
     {
-        dungeon.printMap();
+        displayMap(); // Gun Kim 40x40 맵 출력 -dc
     }
     else if (command == "status" || command == "상태")
     {

@@ -13,6 +13,9 @@ private:
     int currentRoomId;
     Inventory inventory;
 
+    // Gun Kim 추가: 40x40 좌표 추적 -dc
+    int x, y;
+
 public:
     Player(const std::string& name = "Explorer");
 
@@ -28,6 +31,11 @@ public:
 
     Inventory& getInventory();
     const Inventory& getInventory() const;
+
+    // Gun Kim 추가: 위치 관련 -dc
+    int getX() const { return x; }
+    int getY() const { return y; }
+    void setPosition(int newX, int newY);
 
     void printStatus() const;
 };

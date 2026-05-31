@@ -45,3 +45,17 @@ int directionToIndex(Direction direction) {
         default: return -1;
     }
 }
+
+// 방향에 따른 x 좌표 변화량 -dc (Gun Kim 구현)
+int getDeltaX(Direction direction) {
+    if (direction == Direction::East) return 1;
+    if (direction == Direction::West) return -1;
+    return 0;
+}
+
+// 방향에 따른 y 좌표 변화량 -dc (Gun Kim 구현)
+int getDeltaY(Direction direction) {
+    if (direction == Direction::North) return 1;
+    if (direction == Direction::South) return -1;
+    return 0;
+}

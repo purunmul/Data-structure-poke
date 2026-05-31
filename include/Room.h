@@ -15,9 +15,16 @@ private:
     DynamicArray<Monster> monsters;
     bool visited;
 
+    // Gun Kim 추가: 이동 시스템용 데이터 -dc
+    int width;
+    int height;
+    int encounterRate;
+    int eventTriggerStep;
+
 public:
     Room();
-    Room(int id, const std::string& name, const std::string& description);
+    Room(int id, const std::string& name, const std::string& description,
+         int encounterRate = 0, int eventStep = -1);
 
     int getId() const;
     std::string getName() const;
@@ -34,6 +41,12 @@ public:
     void addMonster(const Monster& monster);
     int monsterCount() const;
     const Monster& getMonster(int index) const;
+
+    // Gun Kim 추가: Getter -dc
+    int getWidth() const { return width; }
+    int getHeight() const { return height; }
+    int getEncounterRate() const { return encounterRate; }
+    int getEventTriggerStep() const { return eventTriggerStep; }
 
     void printDescription() const;
 };
