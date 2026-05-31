@@ -10,6 +10,7 @@ struct PokemonData {
     int attack;
     int defense;
     int speed;
+    int spawnRate; // 출현 확률 가중치 (1~100, 총 스탯이 높을수록 낮음) -dc
     ElementType element;
     const char* sprite;
 };
