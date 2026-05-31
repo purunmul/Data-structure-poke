@@ -1,88 +1,99 @@
 #include "Game.h"
-// #include "ds/Sorting.h"
-#include "BattleSystem.h"
+#include "ItemFactory.h"
+#include "PokemonFactory.h"
+#include "ds/Sorting.h"
 #include <iostream>
 #include <limits>
 #include <sstream>
 
 Game::Game() : dungeon(), player("탐험가"), moveHistory(), eventQueue(), scoreTree(), running(true)
 {
-    // 전투 테스트 모드: 던전 구성과 점수 초기화는 잠시 꺼둔다.
-    // buildSampleWorld();
-    // seedScores();
+    buildSampleWorld(); // -dc
+    seedScores();       // -dc
 }
 
-#if 0
+// 포켓몬 테마 맵 구성 -dc
 void Game::buildSampleWorld()
 {
-    int entrance = dungeon.addRoom("입구 홀", "푸른 횃불이 차갑게 빛나는 석조 홀이다.");
-    int library = dungeon.addRoom("도서관", "먼지 쌓인 책들이 벽을 뒤덮고 있다. 사다리는 어두운 발코니로 이어진다.");
-    int armory = dungeon.addRoom("무기고", "부서진 방패와 오래된 창들이 바닥에 흩어져 있다.");
-    int vault = dungeon.addRoom("수정 금고", "공중에 떠 있는 수정에서 빛이 흘러나오는 조용한 방이다.");
+    // 방 생성 -dc
+    int palletTown   = dungeon.addRoom("팔레트 타운",   "오박사의 연구소가 있는 조용한 마을이다. 모험의 시작점.");
+    int route1       = dungeon.addRoom("1번 도로",      "팔레트 타운과 비리디안 시티를 잇는 풀밭 길이다.");
+    int viridianCity = dungeon.addRoom("비리디안 시티", "큰 체육관이 버티고 있는 도시다. 트레이너의 기운이 느껴진다.");
+    int safariZone   = dungeon.addRoom("사파리 존",     "희귀한 포켓몬이 사는 특별 보호구역이다.");
 
-    Room *entranceRoom = dungeon.getRoom(entrance);
-    Room *libraryRoom = dungeon.getRoom(library);
-    Room *armoryRoom = dungeon.getRoom(armory);
-    Room *vaultRoom = dungeon.getRoom(vault);
+    // 방 연결: 팔레트 타운 -[north]-> 1번 도로 -[north]-> 비리디안 시티
+    //                                              -[east]-> 사파리 존 -dc
+    dungeon.connectRooms(palletTown,   Direction::North, route1,       true);
+    dungeon.connectRooms(route1,       Direction::North, viridianCity, true);
+    dungeon.connectRooms(route1,       Direction::East,  safariZone,   true);
 
-    if (entranceRoom != nullptr)
+    // 아이템 배치 -dc
+    Room* pallet = dungeon.getRoom(palletTown);
+    if (pallet != nullptr)
     {
-        entranceRoom->addItem(Item("열쇠", "작은 쇠 열쇠.", 10));
-    }
-    if (libraryRoom != nullptr)
-    {
-        libraryRoom->addItem(Item("두루마리", "잊힌 길에 대한 단서가 적힌 두루마리.", 25));
-    }
-    if (armoryRoom != nullptr)
-    {
-        armoryRoom->addItem(Item("창", "녹슨 창. 아직은 충분히 날카롭다.", 20));
-        armoryRoom->addMonster(Monster("훈련용 더미", 10, 0, 5));
-    }
-    if (vaultRoom != nullptr)
-    {
-        vaultRoom->addItem(Item("수정", "높은 점수를 받을 수 있는 빛나는 수정.", 50));
+        pallet->addItem(createItem("몬스터볼"));
+        pallet->addItem(createItem("풀회복약"));
     }
 
-    dungeon.connectRooms(entrance, Direction::East, library, true);
-    dungeon.connectRooms(entrance, Direction::South, armory, true);
-    dungeon.connectRooms(library, Direction::South, vault, true);
-    dungeon.connectRooms(armory, Direction::East, vault, true);
+    Room* route = dungeon.getRoom(route1);
+    if (route != nullptr)
+    {
+        route->addItem(createItem("갑옷"));
+        route->addItem(createItem("풀회복약"));
+    }
 
-    eventQueue.enqueue(GameEvent("차가운 바람이 던전을 스쳐 지나간다.", 0, 0));
-    eventQueue.enqueue(GameEvent("오래된 표식을 발견해 통찰을 얻었다.", 5, 0));
-    eventQueue.enqueue(GameEvent("헐거운 돌이 근처에 떨어졌다.", 0, -5));
+    Room* safari = dungeon.getRoom(safariZone);
+    if (safari != nullptr)
+    {
+        safari->addItem(createItem("라이플"));
+    }
+
+    // 몬스터 배치 -dc
+    Room* viridian = dungeon.getRoom(viridianCity);
+    if (viridian != nullptr)
+    {
+        viridian->addMonster(Monster("체육관 트레이너", 30, 8, 20));
+    }
+
+    // 시작 이벤트 -dc
+    eventQueue.enqueue(GameEvent("오박사: '세상은 포켓몬으로 가득하다, 얘야!'", 0, 0));
+    eventQueue.enqueue(GameEvent("라이벌이 나타났다! 긴장감이 흐른다.", 0, -5));
+    eventQueue.enqueue(GameEvent("포켓몬의 울음소리가 들렸다. 사기가 올랐다!", 10, 0));
+
+    // 플레이어 시작 위치 -dc
+    player.setCurrentRoomId(palletTown);
 }
 
 void Game::seedScores()
 {
-    scoreTree.insert(ScoreRecord("Ada", 80));
-    scoreTree.insert(ScoreRecord("Grace", 95));
-    scoreTree.insert(ScoreRecord("Linus", 60));
+    scoreTree.insert(ScoreRecord("오박사", 95));
+    scoreTree.insert(ScoreRecord("지우",   80));
+    scoreTree.insert(ScoreRecord("로켓단", 60));
 }
-#endif
 
 void Game::printHelp() const
 {
     std::cout << "\n명령어:\n";
-    std::cout << "  도움말(help)      명령어 목록 보기\n";
-    // std::cout << "  보기(look)        현재 방 살펴보기\n";
-    // std::cout << "  이동(move) <방향> 북/남/동/서로 이동\n";
-    // std::cout << "  줍기(take) <아이템> 현재 방의 아이템 줍기\n";
-    // std::cout << "  가방(inventory)   인벤토리 확인\n";
-    // std::cout << "  되돌리기(undo)    이전 이동 취소\n";
-    // std::cout << "  이벤트(event)     대기 중인 이벤트 하나 처리\n";
-    // std::cout << "  점수(scores)      점수 트리 보기\n";
-    // std::cout << "  정렬(sortitems)   현재 방 아이템을 가치순으로 보기\n";
-    // std::cout << "  지도(map)         던전 지도 보기\n";
-    std::cout << "  상태(status)      플레이어 상태 보기\n";
-    std::cout << "  종료(quit)        게임 종료\n";
-    std::cout << "  전투(battle) [이름] 포켓몬 전투 시작\n";
+    std::cout << "  도움말(help)          명령어 목록 보기\n";
+    std::cout << "  보기(look)            현재 방 살펴보기\n";
+    std::cout << "  이동(move) <방향>     북/남/동/서로 이동\n";
+    std::cout << "  줍기(take) <아이템>   현재 방의 아이템 줍기\n";
+    std::cout << "  가방(inventory)       인벤토리 확인\n";
+    std::cout << "  되돌리기(undo)        이전 이동 취소\n";
+    std::cout << "  이벤트(event)         대기 중인 이벤트 하나 처리\n";
+    std::cout << "  점수(scores)          점수 트리 보기\n";
+    std::cout << "  정렬(sortitems)       현재 방 아이템을 가치순으로 보기\n";
+    std::cout << "  지도(map)             던전 지도 보기\n";
+    std::cout << "  상태(status)          플레이어 상태 보기\n";
+    std::cout << "  전투(battle) [이름]   포켓몬 전투 시작\n";
+    std::cout << "  파티(party)           보유 포켓몬 목록 보기\n";
+    std::cout << "  도감(pokedex)         개체값 순 도감 & 동행 포켓몬 선택\n";
+    std::cout << "  종료(quit)            게임 종료\n";
 }
 
-#if 0
 void Game::look() const
 {
-    const Room *room = dungeon.getRoom(player.getCurrentRoomId());
+    const Room* room = dungeon.getRoom(player.getCurrentRoomId());
     if (room == nullptr)
     {
         std::cout << "현재 방 정보가 올바르지 않습니다.\n";
@@ -145,15 +156,15 @@ void Game::undoMove()
     look();
 }
 
-void Game::takeItem(const std::string &itemName)
+void Game::takeItem(const std::string& itemName)
 {
     if (itemName.empty())
     {
-        std::cout << "무엇을 주울까요? 예: 줍기 열쇠\n";
+        std::cout << "무엇을 주울까요? 예: 줍기 몬스터볼\n";
         return;
     }
 
-    Room *room = dungeon.getRoom(player.getCurrentRoomId());
+    Room* room = dungeon.getRoom(player.getCurrentRoomId());
     if (room == nullptr)
     {
         std::cout << "현재 방 정보가 올바르지 않습니다.\n";
@@ -167,6 +178,7 @@ void Game::takeItem(const std::string &itemName)
         return;
     }
 
+    printItemSprite(item.getName()); // 아이템 획득 시 스프라이트 출력 -dc
     player.getInventory().addItem(item);
     player.addScore(item.getValue());
     std::cout << "획득: " << item.getName() << "\n";
@@ -195,7 +207,7 @@ void Game::showScores() const
 
 void Game::showSortedRoomItems() const
 {
-    const Room *room = dungeon.getRoom(player.getCurrentRoomId());
+    const Room* room = dungeon.getRoom(player.getCurrentRoomId());
     if (room == nullptr)
     {
         std::cout << "현재 방 정보가 올바르지 않습니다.\n";
@@ -209,7 +221,7 @@ void Game::showSortedRoomItems() const
         return;
     }
 
-    Item *copy = new Item[count];
+    Item* copy = new Item[count];
     for (int i = 0; i < count; ++i)
     {
         copy[i] = room->getItem(i);
@@ -226,9 +238,8 @@ void Game::showSortedRoomItems() const
 
     delete[] copy;
 }
-#endif
 
-void Game::processCommand(const std::string &line)
+void Game::processCommand(const std::string& line)
 {
     std::istringstream input(line);
     std::string command;
@@ -238,7 +249,6 @@ void Game::processCommand(const std::string &line)
     {
         printHelp();
     }
-#if 0
     else if (command == "look" || command == "보기")
     {
         look();
@@ -252,7 +262,7 @@ void Game::processCommand(const std::string &line)
     else if (command == "take" || command == "줍기")
     {
         std::string itemName;
-        input >> itemName;
+        std::getline(input >> std::ws, itemName);
         takeItem(itemName);
     }
     else if (command == "inventory" || command == "가방")
@@ -279,7 +289,6 @@ void Game::processCommand(const std::string &line)
     {
         dungeon.printMap();
     }
-#endif
     else if (command == "status" || command == "상태")
     {
         player.printStatus();
@@ -290,23 +299,136 @@ void Game::processCommand(const std::string &line)
     }
     else if (command.empty())
     {
-        // Ignore blank lines.
+        // 빈 줄 무시
     }
     else if (command == "battle" || command == "전투")
     {
         std::string pokemonName;
         input >> pokemonName;
 
-        BattleSystem battleSystem;
-        if (pokemonName.empty())
+        // 보유 포켓몬 버프 전투 전 텍스트 표시 -dc
+        pokemonParty.printBuffs();
+
+        // PokemonData 조회 -dc
+        const PokemonData* data = pokemonName.empty()
+            ? &getDefaultPokemonData()
+            : findPokemonData(pokemonName);
+
+        if (data == nullptr)
         {
-            battleSystem.startTestBattle();
+            std::cout << "'" << pokemonName << "' 포켓몬 데이터를 찾을 수 없습니다.\n";
         }
         else
         {
-            battleSystem.startBattleByPokemonName(pokemonName);
+            PlayerBattle playerBattle;
+            EnemyBattle enemy = createEnemyBattle(*data);
+
+            BattleSystem battleSystem;
+            battleSystem.startBattle(playerBattle, enemy); // -dc
+
+            // 전투 후 포획 판정: enemy HP > 0 && player 생존 → 포획 성공 -dc
+            if (playerBattle.isAlive() && enemy.isAlive())
+            {
+                if (!pokemonParty.has(enemy.getName()))
+                {
+                    CaughtPokemon caught;
+                    caught.name          = enemy.getName();
+                    caught.element       = enemy.getElement();
+                    caught.attack        = enemy.getAttack();
+                    caught.defense       = enemy.getDefense();
+                    caught.speed         = enemy.getSpeed();                  // -dc
+                    caught.pokedexNumber = getPokemonNumber(enemy.getName()); // -dc
+                    pokemonParty.add(caught);
+                    std::cout << enemy.getName() << "이(가) 파티에 추가되었습니다!\n";
+                }
+                else
+                {
+                    std::cout << enemy.getName() << "은(는) 이미 파티에 있습니다.\n";
+                }
+            }
         }
+
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+    else if (command == "party" || command == "파티") // -dc
+    {
+        pokemonParty.print();
+    }
+    else if (command == "pokedex" || command == "도감") // -dc
+    {
+        if (pokemonParty.isEmpty())
+        {
+            std::cout << "보유한 포켓몬이 없습니다. 전투에서 포획하세요.\n";
+        }
+        else
+        {
+            // 정렬 기준 선택 -dc
+            std::cout << "\n정렬 기준:\n";
+            std::cout << "  1. 개체값 (공격+방어)\n";
+            std::cout << "  2. 공격력\n";
+            std::cout << "  3. 방어력\n";
+            std::cout << "  4. 포켓몬 번호\n";
+            std::cout << "선택 (기본 1): ";
+
+            std::string sortStr;
+            std::getline(std::cin, sortStr);
+            std::istringstream sortSS(sortStr);
+            int sortChoice = 1;
+            sortSS >> sortChoice;
+
+            PokedexSortBy sortBy;
+            const char* sortLabel;
+            switch (sortChoice)
+            {
+                case 2:  sortBy = PokedexSortBy::Attack;   sortLabel = "공격력 순";      break;
+                case 3:  sortBy = PokedexSortBy::Defense;  sortLabel = "방어력 순";      break;
+                case 4:  sortBy = PokedexSortBy::Number;   sortLabel = "포켓몬 번호 순"; break;
+                default: sortBy = PokedexSortBy::StatTotal; sortLabel = "개체값 순";     break;
+            }
+
+            int n = pokemonParty.size();
+            CaughtPokemon* arr = new CaughtPokemon[n];
+            pokemonParty.getSorted(sortBy, arr); // -dc
+
+            std::cout << "\n[포켓몬 도감] " << sortLabel << "\n";
+            std::cout << "----------------------------------------------\n";
+            for (int i = 0; i < n; ++i)
+            {
+                const CaughtPokemon& p = arr[i];
+                std::cout << "  " << (i + 1) << ". "
+                          << "No." << p.pokedexNumber << " "
+                          << p.name
+                          << "  개체값:" << (p.attack + p.defense)
+                          << "  공격:" << p.attack
+                          << "  방어:" << p.defense;
+                if (p.name == pokemonParty.getSelected())
+                {
+                    std::cout << "  ★ 동행 중";
+                }
+                std::cout << "\n";
+            }
+            std::cout << "----------------------------------------------\n";
+            std::cout << "동행할 포켓몬 번호 입력 (0: 취소): ";
+
+            std::string choiceStr;
+            std::getline(std::cin, choiceStr);
+            std::istringstream ss(choiceStr);
+            int choice = 0;
+            ss >> choice;
+
+            if (choice >= 1 && choice <= n)
+            {
+                pokemonParty.setSelected(arr[choice - 1].name);
+                std::cout << arr[choice - 1].name
+                          << "을(를) 동행 포켓몬으로 선택했습니다!\n";
+            }
+            else if (choice != 0)
+            {
+                std::cout << "올바르지 않은 번호입니다.\n";
+            }
+
+            delete[] arr;
+        }
     }
     else
     {
@@ -316,9 +438,9 @@ void Game::processCommand(const std::string &line)
 
 void Game::run()
 {
-    std::cout << "전투 테스트 모드\n";
-    std::cout << "'도움말'을 입력하면 명령어를 볼 수 있습니다.\n";
-    // look();
+    std::cout << "=== Poké: 던전 탐험 ===\n";
+    std::cout << "'도움말'을 입력하면 명령어를 볼 수 있습니다.\n\n";
+    look(); // -dc
 
     while (running && player.isAlive())
     {
@@ -331,7 +453,7 @@ void Game::run()
         processCommand(line);
     }
 
-    // scoreTree.insert(ScoreRecord(player.getName(), player.getScore()));
+    scoreTree.insert(ScoreRecord(player.getName(), player.getScore())); // -dc
     std::cout << "\n최종 상태:\n";
     player.printStatus();
     std::cout << "게임을 종료합니다.\n";

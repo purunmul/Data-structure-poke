@@ -8,35 +8,56 @@ Inventory::~Inventory() {
 }
 
 void Inventory::addItem(const Item& item) {
-    // TODO(Student): Implement linked-list insertion.
-    // Suggested behavior: insert the new item at the front of the list.
-    // Steps:
-    // 1. Allocate a new Node.
-    // 2. Point the new node's next to the current head.
-    // 3. Update head.
-    // 4. Increment count.
-    (void)item;
-    std::cout << "[미구현] Inventory::addItem 함수가 아직 구현되지 않았습니다.\n";
+    // 새 노드를 생성하여 리스트 맨 앞에 삽입 -dc
+    Node* newNode = new Node(item);
+    newNode->next = head;
+    head = newNode;
+    ++count;
 }
 
 bool Inventory::removeItem(const std::string& itemName) {
-    // TODO(Student): Implement linked-list deletion by item name.
-    // Edge cases: empty list, removing the head, removing a middle/tail node,
-    // and item not found.
-    (void)itemName;
-    std::cout << "[미구현] Inventory::removeItem 함수가 아직 구현되지 않았습니다.\n";
+    // 이름이 일치하는 노드를 찾아 삭제, head 교체와 중간 삭제 모두 처리 -dc
+    Node* current = head;
+    Node* prev = nullptr;
+
+    while (current != nullptr) {
+        if (current->item.getName() == itemName) {
+            if (prev == nullptr) {
+                head = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            delete current;
+            --count;
+            return true;
+        }
+        prev = current;
+        current = current->next;
+    }
     return false;
 }
 
 Item* Inventory::findItem(const std::string& itemName) {
-    // TODO(Student): Implement linked-list search.
-    (void)itemName;
+    // 이름이 일치하는 노드의 item 포인터 반환 -dc
+    Node* current = head;
+    while (current != nullptr) {
+        if (current->item.getName() == itemName) {
+            return &current->item;
+        }
+        current = current->next;
+    }
     return nullptr;
 }
 
 const Item* Inventory::findItem(const std::string& itemName) const {
-    // TODO(Student): Implement const linked-list search.
-    (void)itemName;
+    // const 버전: 읽기 전용 탐색 -dc
+    const Node* current = head;
+    while (current != nullptr) {
+        if (current->item.getName() == itemName) {
+            return &current->item;
+        }
+        current = current->next;
+    }
     return nullptr;
 }
 

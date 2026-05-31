@@ -3,6 +3,7 @@
 
 #include "GameEvent.h"
 #include "Player.h"
+#include "PokemonParty.h"
 #include "ds/DungeonGraph.h"
 #include "ds/Queue.h"
 #include "ds/ScoreTree.h"
@@ -13,6 +14,7 @@ class Game {
 private:
     DungeonGraph dungeon;
     Player player;
+    PokemonParty pokemonParty; // 포획한 포켓몬 파티 -dc
     Stack<int> moveHistory;
     Queue<GameEvent> eventQueue;
     ScoreTree scoreTree;
