@@ -9,6 +9,8 @@ include_directories(include)
 set(PROJECT_SOURCES
     src/main.cpp
     src/Game.cpp
+    src/BattleSystem.cpp
+    src/PokemonFactory.cpp
     src/Direction.cpp
     src/Player.cpp
     src/Room.cpp
@@ -25,6 +27,8 @@ add_executable(dungeon_explorer ${PROJECT_SOURCES})
 set(TEST_SOURCES
     tests/ds_smoke_tests.cpp
     src/Direction.cpp
+    src/BattleSystem.cpp
+    src/PokemonFactory.cpp
     src/Player.cpp
     src/Room.cpp
     src/Item.cpp

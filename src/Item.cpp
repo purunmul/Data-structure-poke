@@ -19,5 +19,5 @@ int Item::getValue() const {
 }
 
 void Item::print() const {
-    std::cout << name << " (value " << value << "): " << description << "\n";
+    std::cout << name << " (가치 " << value << "): " << description << "\n";
 }

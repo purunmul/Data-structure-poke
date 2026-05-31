@@ -72,6 +72,6 @@ int DungeonGraph::size() const {
 void DungeonGraph::printMap() const {
     // TODO(Student): Implement a readable adjacency display.
     // Example:
-    // Entrance Hall: east -> Library, south -> Armory
-    std::cout << "[TODO] DungeonGraph::printMap is not implemented yet.\n";
+    // 입구 홀: 동 -> 도서관, 남 -> 무기고
+    std::cout << "[미구현] DungeonGraph::printMap 함수가 아직 구현되지 않았습니다.\n";
 }

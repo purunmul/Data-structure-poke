@@ -34,6 +34,6 @@ void Monster::takeDamage(int amount) {
 }
 
 void Monster::print() const {
-    std::cout << name << " (HP " << health << ", attack " << attack
-              << ", reward " << rewardScore << ")\n";
+    std::cout << name << " (체력 " << health << ", 공격력 " << attack
+              << ", 보상 점수 " << rewardScore << ")\n";
 }

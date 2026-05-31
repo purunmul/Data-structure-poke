@@ -34,7 +34,7 @@ bool ScoreTree::containsRecursive(Node* current, const std::string& playerName) 
 
 void ScoreTree::printDescending() const {
     if (root == nullptr) {
-        std::cout << "No scores recorded.\n";
+        std::cout << "기록된 점수가 없습니다.\n";
         return;
     }
     printDescendingRecursive(root);
@@ -43,7 +43,7 @@ void ScoreTree::printDescending() const {
 void ScoreTree::printDescendingRecursive(Node* current) const {
     // TODO(Student): Implement reverse in-order traversal: right, current, left.
     (void)current;
-    std::cout << "[TODO] ScoreTree::printDescendingRecursive is not implemented yet.\n";
+    std::cout << "[미구현] ScoreTree::printDescendingRecursive 함수가 아직 구현되지 않았습니다.\n";
 }
 
 void ScoreTree::clearRecursive(Node* current) {

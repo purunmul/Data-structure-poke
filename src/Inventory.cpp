@@ -16,7 +16,7 @@ void Inventory::addItem(const Item& item) {
     // 3. Update head.
     // 4. Increment count.
     (void)item;
-    std::cout << "[TODO] Inventory::addItem is not implemented yet.\n";
+    std::cout << "[미구현] Inventory::addItem 함수가 아직 구현되지 않았습니다.\n";
 }
 
 bool Inventory::removeItem(const std::string& itemName) {
@@ -24,7 +24,7 @@ bool Inventory::removeItem(const std::string& itemName) {
     // Edge cases: empty list, removing the head, removing a middle/tail node,
     // and item not found.
     (void)itemName;
-    std::cout << "[TODO] Inventory::removeItem is not implemented yet.\n";
+    std::cout << "[미구현] Inventory::removeItem 함수가 아직 구현되지 않았습니다.\n";
     return false;
 }
 
@@ -61,11 +61,11 @@ void Inventory::clear() {
 
 void Inventory::print() const {
     if (head == nullptr) {
-        std::cout << "Inventory is empty.\n";
+        std::cout << "가방이 비어 있습니다.\n";
         return;
     }
 
-    std::cout << "Inventory (" << count << " item(s)):\n";
+    std::cout << "가방 (" << count << "개):\n";
     Node* current = head;
     while (current != nullptr) {
         std::cout << "  - ";

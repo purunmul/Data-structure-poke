@@ -1,16 +1,16 @@
 #include "Direction.h"
 
 Direction parseDirection(const std::string& text) {
-    if (text == "north" || text == "n") {
+    if (text == "north" || text == "n" || text == "북") {
         return Direction::North;
     }
-    if (text == "south" || text == "s") {
+    if (text == "south" || text == "s" || text == "남") {
         return Direction::South;
     }
-    if (text == "east" || text == "e") {
+    if (text == "east" || text == "e" || text == "동") {
         return Direction::East;
     }
-    if (text == "west" || text == "w") {
+    if (text == "west" || text == "w" || text == "서") {
         return Direction::West;
     }
     return Direction::Invalid;
@@ -18,11 +18,11 @@ Direction parseDirection(const std::string& text) {
 
 std::string directionToString(Direction direction) {
     switch (direction) {
-        case Direction::North: return "north";
-        case Direction::South: return "south";
-        case Direction::East: return "east";
-        case Direction::West: return "west";
-        default: return "invalid";
+        case Direction::North: return "북";
+        case Direction::South: return "남";
+        case Direction::East: return "동";
+        case Direction::West: return "서";
+        default: return "잘못된 방향";
     }
 }
 

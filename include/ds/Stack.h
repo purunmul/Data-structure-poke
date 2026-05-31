@@ -38,7 +38,7 @@ public:
         // TODO(Student): Implement stack push.
         // Hint: allocate a new Node, link it to the current top, then update topNode.
         (void)value;
-        std::cout << "[TODO] Stack::push is not implemented yet.\n";
+        std::cout << "[미구현] Stack::push 함수가 아직 구현되지 않았습니다.\n";
     }
 
     bool pop(T& output) {
@@ -46,7 +46,7 @@ public:
         // Return false if the stack is empty. Otherwise copy the top value into output,
         // unlink the top node, delete it, and return true.
         (void)output;
-        std::cout << "[TODO] Stack::pop is not implemented yet.\n";
+        std::cout << "[미구현] Stack::pop 함수가 아직 구현되지 않았습니다.\n";
         return false;
     }
 
